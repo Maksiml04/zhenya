@@ -142,6 +142,7 @@ li { margin-bottom: .3em; }
 .nav__item:hover .nav__dropdown, .nav__item.is-open .nav__dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
 .nav__dropdown a { display: block; padding: 8px 12px; border-radius: 6px; color: var(--text-muted); font-size: .88rem; font-weight: 500; text-decoration: none; }
 .nav__dropdown a:hover, .nav__dropdown a.is-active { background: var(--bg-soft); color: var(--text); }
+.nav__close { display: none; }
 
 .header__cta { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
 .header__phone { text-align: right; line-height: 1.1; }
@@ -479,11 +480,11 @@ li { margin-bottom: .3em; }
   .burger { display: block; }
   .header__cta .header__phone { display: none; }
   .nav {
-    position: fixed; inset: 0 0 0 auto; width: min(320px, 82vw); height: 100dvh; z-index: 950;
+    position: fixed; inset: 0; width: 100%; height: 100dvh; z-index: 950;
     background: var(--bg); flex-direction: column; align-items: stretch; justify-content: flex-start;
     padding: calc(20px + env(safe-area-inset-top, 20px)) 16px calc(20px + env(safe-area-inset-bottom, 20px));
     gap: 0; overflow-y: auto; transform: translateX(100%);
-    transition: transform .3s var(--ease); border-left: 1px solid var(--border);
+    transition: transform .3s var(--ease);
   }
   .nav.is-open { transform: none; }
   .nav__list { flex-direction: column; align-items: stretch; gap: 2px; width: 100%; margin-top: 40px; }
@@ -494,6 +495,7 @@ li { margin-bottom: .3em; }
   .nav__item.is-open .nav__caret::before { content: '−'; }
   .nav__close { display: flex; position: absolute; top: calc(12px + env(safe-area-inset-top, 12px)); right: 12px; width: 44px; height: 44px; align-items: center; justify-content: center; border: none; background: none; font-size: 1.4rem; color: var(--text); cursor: pointer; border-radius: 12px; }
   .nav__close:hover { background: var(--bg-soft); }
+  .nav-backdrop { display: none; }
   .nav__dropdown { position: static; opacity: 1; visibility: visible; transform: none; box-shadow: none; background: transparent; border: none; min-width: 0; padding: 0 0 6px 14px; display: none; }
   .nav__item.is-open .nav__dropdown { display: block; }
   .nav__dropdown a { color: var(--text-muted); padding: 8px 12px; }

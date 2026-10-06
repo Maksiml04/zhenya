@@ -208,6 +208,7 @@ def render_header(base, active_url):
       </span>
     </a>
     <nav class="nav" aria-label="Основная навигация">
+      <button class="nav__close" aria-label="Закрыть меню">×</button>
       {render_nav(base, active_url)}
       <div class="nav__mobile-cta">
         <a class="btn btn--solid btn--sm" href="{base}kontakty/">Записаться</a>
@@ -488,9 +489,15 @@ def news_card(base, it):
     url = f'{base}{it["route"]}/'
     det = NEWS["details"].get(it["slug"], {})
     ex = excerpt(det.get("body_html", ""), 120)
+    # используем medium вместо small (180px -> 450px)
+    thumb = det.get("gallery", [{}])[0].get("thumb") if det.get("gallery") else it.get("thumb")
+    if thumb:
+        thumb = thumb.replace("news/small/", "news/medium/")
+    else:
+        thumb = it.get("thumb", "")
     return f"""
 <article class="card news-card reveal">
-  <a class="card__media" href="{url}"><img src="{base}{it["thumb"]}" alt="{eattr(it["title"])}" loading="lazy"></a>
+  <a class="card__media" href="{url}"><img src="{base}{thumb}" alt="{eattr(it["title"])}" loading="lazy"></a>
   <div class="card__body">
     <span class="news-card__date">{esc(it.get("date"))}</span>
     <h3 class="card__title"><a href="{url}">{esc(it["title"])}</a></h3>
@@ -529,7 +536,7 @@ def detail_body(base, title, body_html, gallery):
     if rest:
         g0 = rest[0]
         lead = (f'<figure class="lead-img zoomable" data-full="{base}{g0["full"]}" data-caption="{eattr(title)}">'
-                f'<img src="{base}{g0["thumb"]}" alt="{eattr(title)}"></figure>')
+                f'<img src="{base}{g0["full"]}" alt="{eattr(title)}" loading="lazy"></figure>')
         rest = rest[1:]
     gal = gallery_html(base, rest, title)
     return lead + fill_tokens(body_html, base) + gal
@@ -855,7 +862,7 @@ def page_404(base):
 # ============================================================================
 def dir_hero_html(base, it, det, theme):
     """Создаёт уникальную Hero-секцию для страницы направления."""
-    hero_img = (det.get("gallery", [{}])[0].get("thumb", "")
+    hero_img = (det.get("gallery", [{}])[0].get("full", "")
                 if det.get("gallery") else it.get("thumb", ""))
     title = it["title"]
     lead = it.get("desc", "")

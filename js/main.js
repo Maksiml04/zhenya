@@ -32,6 +32,9 @@
     });
   }
   if (backdrop) backdrop.addEventListener("click", closeNav);
+  // кнопка закрытия внутри панели
+  var navClose = $(".nav__close");
+  if (navClose) navClose.addEventListener("click", closeNav);
 
   /* ---------- Дропдауны (клик на мобильных, hover на десктопе) ---------- */
   $$(".nav__item.has-children > .nav__link").forEach(function (link) {

@@ -391,7 +391,7 @@ def render_modals(base):
 # ============================================================================
 # Каркас
 # ============================================================================
-def layout(title, base, body, active_url="", meta_desc=None, og=None):
+def layout(title, base, body, active_url="", meta_desc=None, og=None, page_url=""):
     desc = meta_desc or f'{CTYPE} «{BRAND}» — {esc(C.get("address_top"))}. {esc(C.get("phone_display"))}.'
     full_title = f"{title} — {CTYPE} «{BRAND}»" if title else f'{CTYPE} «{BRAND}»'
     og = og or {}
@@ -400,6 +400,8 @@ def layout(title, base, body, active_url="", meta_desc=None, og=None):
     og_type = esc(og.get("type") or "website")
     og_img = esc(og.get("image") or "")
     og_img_tag = f'<meta property="og:image" content="{og_img}">' if og_img else ""
+    canonical = f'<link rel="canonical" href="{SITE_URL.rstrip("/")}/{page_url.lstrip("/")}">' if page_url else ""
+    tw_card = 'summary_large_image' if og_img else 'summary'
     jsonld = json.dumps({
         "@context": "https://schema.org",
         "@type": "DanceSchool",
@@ -419,10 +421,14 @@ def layout(title, base, body, active_url="", meta_desc=None, og=None):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(full_title)}</title>
 <meta name="description" content="{eattr(desc)}">
+{canonical}
 <meta property="og:title" content="{og_title}">
 <meta property="og:description" content="{og_desc}">
 <meta property="og:type" content="{og_type}">
 {og_img_tag}
+<meta name="twitter:card" content="{tw_card}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="icon" href="{base}img/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="{base}css/style.css">
 <script type="application/ld+json">{jsonld}</script>
@@ -444,17 +450,22 @@ def layout(title, base, body, active_url="", meta_desc=None, og=None):
 
 def page_head(base, title, trail):
     crumbs = [f'<a href="{home_href(base)}">Главная</a>']
-    for label, url in trail:
+    breadcrumb_items = [{"@type": "ListItem", "position": 1, "name": "Главная", "item": SITE_URL.rstrip("/") + "/"}]
+    for i, (label, url) in enumerate(trail, 2):
         crumbs.append('<span>/</span>')
         if url:
             crumbs.append(f'<a href="{base}{url}">{esc(label)}</a>')
+            breadcrumb_items.append({"@type": "ListItem", "position": i, "name": label, "item": SITE_URL.rstrip("/") + "/" + url.lstrip("/")})
         else:
             crumbs.append(f'<span>{esc(label)}</span>')
+            breadcrumb_items.append({"@type": "ListItem", "position": i, "name": label})
+    breadcrumb_ld = json.dumps({"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": breadcrumb_items}, ensure_ascii=False)
     return f"""
 <section class="page-head">
   <div class="container">
     <h1>{esc(title)}</h1>
     <nav class="breadcrumbs" aria-label="Хлебные крошки">{"".join(crumbs)}</nav>
+    <script type="application/ld+json">{breadcrumb_ld}</script>
   </div>
 </section>"""
 
@@ -997,7 +1008,8 @@ def build():
         desc = excerpt(d.get("desc", "") or body_html, 160)
         og_img = (gallery[0]["thumb"] if gallery
                   else d["thumb"]) if d.get("thumb") else ""
-        body = f"""{hero}
+        body = f"""{page_head(b, d["title"], trail)}
+{hero}
 <section class="page-body" id="content">
   <div class="container layout-2">
     <div class="prose reveal">{detail_body(b, d["title"], body_html, gallery)}</div>
@@ -1070,7 +1082,9 @@ def build():
     for out, title, active, body, meta_desc, og in pages:
         depth = out.count("/")
         base = "../" * depth
-        written.append(write(out, layout(title, base, body, active, meta_desc, og)))
+        # page_url для canonical — убираем index.html, оставляем путь с /
+        page_url = out.replace("/index.html", "/") if out != "index.html" else ""
+        written.append(write(out, layout(title, base, body, active, meta_desc, og, page_url)))
 
     # sitemap / robots
     write("sitemap.xml", build_sitemap(sorted(routes)))

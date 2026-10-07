@@ -273,7 +273,12 @@ def render_footer(base):
       </div>
     </div>
     <div class="footer__bottom">
-      <div>© <span id="year">2026</span> «{esc(BRAND)}». Танцевальная школа.</div>
+      <div>
+        <div>© <span id="year">2026</span> «{esc(BRAND)}». Танцевальная школа.</div>
+        <div style="margin-top:4px;font-size:.78rem;color:#686868">
+          ООО «{esc(BRAND)}» · ИНН 0000000000 · ОГРН 0000000000000
+        </div>
+      </div>
       <div><a href="{base}privacy/">Политика конфиденциальности</a></div>
     </div>
   </div>

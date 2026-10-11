@@ -395,10 +395,10 @@ li { margin-bottom: .3em; line-height: 1.6; }
 /* --- Sport: мощный, тёмный фон с акцентным изображением --- */
 [data-theme="sport"] .dir-hero { background: #1a1a1a; color: #fff; min-height: 480px; }
 [data-theme="sport"] .dir-hero__title { color: #fff; font-weight: 900; position: relative; z-index: 2; }
-[data-theme="sport"] .dir-hero__text { color: rgba(255,255,255,.75); max-width: 520px; position: relative; z-index: 2; }
+[data-theme="sport"] .dir-hero__text { color: #fff; max-width: 520px; position: relative; z-index: 2; }
 [data-theme="sport"] .dir-hero::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to right, rgba(0,0,0,.85) 0%, rgba(0,0,0,.7) 50%, rgba(0,0,0,.4) 100%);
+  background: linear-gradient(to right, rgba(0,0,0,.88) 0%, rgba(0,0,0,.82) 50%, rgba(0,0,0,.7) 100%);
   z-index: 1;
 }
 [data-theme="sport"] .dir-hero__bg { position: absolute; inset: 0; z-index: 0; }

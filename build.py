@@ -889,22 +889,9 @@ def dir_hero_html(base, it, det, theme):
     lead = excerpt(lead, 280) if lead else ""
     btn = f'<a class="btn btn--solid btn--sm" href="#content">{esc("Подробнее")}</a>'
 
-    # --- Sport: мощный, тёмный фон с акцентным изображением ---
+    # --- Sport: удалён full-bleed hero, оставлен только контент ниже ---
     if theme == "sport":
-        return f"""
-<section class="dir-hero" data-theme="sport">
-  <div class="dir-hero__bg"><img src="{base}{hero_img}" alt="" loading="lazy"></div>
-  <div class="dir-hero__inner">
-    <h1 class="dir-hero__title">{esc(title)}</h1>
-    <p class="dir-hero__text">{esc(lead)}</p>
-    <div class="dir-hero__stats">
-      <div><b>30+</b><span>лет традиций</span></div>
-      <div><b>2</b><span>программы</span></div>
-      <div><b>5</b><span>танцев каждой</span></div>
-    </div>
-    <a class="btn btn--light" href="#content">Подробнее</a>
-  </div>
-</section>"""
+        return ""
 
     # --- Modern: сплит-экран, изображение справа ---
     if theme == "modern":

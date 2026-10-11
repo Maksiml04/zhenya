@@ -26,6 +26,10 @@ DATA = json.load(open(os.path.join(ROOT, "content.json"), encoding="utf-8"))
 # Можно задать через переменную окружения SITE_URL
 SITE_URL = os.environ.get("SITE_URL", "https://USERNAME.github.io/zhenya")
 
+# Turnstile (Cloudflare CAPTCHA)
+TURNSTILE_SITEKEY = "0x4AAAAAAFUJ0lLeXaBJRDJb"
+TURNSTILE_API_URL = "https://forum-form-handler.lzr-leads.workers.dev"
+
 SITE = DATA["site"]
 BRAND = SITE["brand_name"]
 CTYPE = SITE["brand_type"]
@@ -291,13 +295,12 @@ def render_footer(base):
 FORM_DIRECTIONS = [d["title"] for d in DIRECTIONS["items"]]
 
 
+TURNSTILE_SITEKEY_FMT = TURNSTILE_SITEKEY
+
+
 def captcha_html(uid):
     return f"""
-<div class="captcha">
-  <input type="checkbox" name="robot" id="robot-{uid}" required>
-  <label for="robot-{uid}">Я не робот</label>
-  <div class="captcha__brand">защита<br>от спама</div>
-</div>"""
+<div class="cf-turnstile" data-sitekey="{TURNSTILE_SITEKEY_FMT}" data-action="submit" data-callback="onTurnstileSuccess"></div>"""
 
 
 def agree_html(base):
@@ -323,7 +326,7 @@ def form_success(title="Заявка отправлена!"):
 def signup_form(base, uid):
     opts = "".join(f'<option value="{eattr(o)}">{esc(o)}</option>' for o in FORM_DIRECTIONS)
     return f"""
-<form data-form novalidate>
+<form data-form novalidate action="{TURNSTILE_API_URL}" method="POST">
   <div class="field">
     <label for="dir-{uid}">Направление</label>
     <select id="dir-{uid}" name="direction" required>
@@ -364,7 +367,7 @@ def render_modals(base):
     <h3 id="cb-title">Заказать звонок</h3>
     <p class="sub">Оставьте номер — перезвоним в течение 10 минут.</p>
     <div class="form-wrap">
-      <form data-form novalidate>
+      <form data-form novalidate action="{TURNSTILE_API_URL}" method="POST">
         <div class="field">
           <label for="cb-name">Ваше имя *</label>
           <input id="cb-name" type="text" name="name" placeholder="Имя" required>
@@ -431,6 +434,7 @@ def layout(title, base, body, active_url="", meta_desc=None, og=None, page_url="
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="icon" href="{base}img/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="{base}css/style.css">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script type="application/ld+json">{jsonld}</script>
 </head>
 <body>

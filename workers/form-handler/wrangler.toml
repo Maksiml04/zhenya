@@ -1,0 +1,6 @@
+name = "forum-form-handler"
+main = "src/index.js"
+compatibility_date = "2025-10-01"
+
+[env.production]
+vars = { TURNSTILE_SECRET = "" }

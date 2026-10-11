@@ -111,7 +111,7 @@
     }
   });
 
-  /* ---------- Валидация + «отправка» форм ---------- */
+  /* ---------- Валидация + отправка форм (Turnstile + Worker) ---------- */
   function validate(form) {
     var ok = true;
     $$("[required]", form).forEach(function (el) {
@@ -123,12 +123,10 @@
       el.classList.toggle("err", bad);
       if (bad) ok = false;
     });
-    // Капча «я не робот»
-    var robot = form.querySelector('input[name="robot"]');
-    if (robot && !robot.checked) {
+    // Turnstile
+    var turnstileResp = form.querySelector('[name="cf-turnstile-response"]');
+    if (turnstileResp && !turnstileResp.value) {
       ok = false;
-      var cap = robot.closest(".captcha");
-      if (cap) { cap.style.borderColor = "#d9534f"; setTimeout(function () { cap.style.borderColor = ""; }, 1600); }
     }
     // Согласие на обработку данных
     var agree = form.querySelector('input[name="agree"]');
@@ -145,28 +143,11 @@
     } else {
       alert("Спасибо! Заявка отправлена. Мы свяжемся с вами в ближайшее время.");
     }
+    if (window.turnstile) {
+      var widget = form.querySelector('.cf-turnstile');
+      if (widget) turnstile.reset(widget);
+    }
   }
-
-  $$("form[data-form]").forEach(function (form) {
-    // Сброс подсветки ошибок при вводе
-    $$("input, select, textarea", form).forEach(function (el) {
-      el.addEventListener("input", function () { el.classList.remove("err"); });
-    });
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      if (!validate(form)) return;
-      var btn = form.querySelector('button[type="submit"]');
-      if (btn) { btn.disabled = true; btn.textContent = "Отправка…"; }
-      // Здесь должна быть реальная отправка на сервер (fetch). Плейсхолдер:
-      setTimeout(function () {
-        if (btn) { btn.disabled = false; }
-        showSuccess(form);
-        // закрыть модалку через паузу, если форма внутри неё
-        var modal = form.closest(".modal");
-        if (modal) setTimeout(function () { closeModal(modal); form.reset(); resetFormState(form); }, 2200);
-      }, 700);
-    });
-  });
 
   function resetFormState(form) {
     form.style.display = "";
@@ -175,6 +156,42 @@
     var success = box ? box.querySelector(".form-success") : null;
     if (success) success.classList.remove("is-shown");
   }
+
+  window.onTurnstileSuccess = function () {
+    $$(".captcha.err").forEach(function (c) { c.classList.remove("err"); });
+  };
+
+  $$("form[data-form]").forEach(function (form) {
+    $$("input, select, textarea", form).forEach(function (el) {
+      el.addEventListener("input", function () { el.classList.remove("err"); });
+    });
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!validate(form)) return;
+
+      var btn = form.querySelector('button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.textContent = "Отправка…"; }
+
+      var data = new FormData(form);
+
+      fetch(form.action, {
+        method: "POST",
+        body: data,
+      }).then(function (r) {
+        if (!r.ok) throw new Error("Server error");
+        return r.json();
+      }).then(function (result) {
+        if (!result.success) throw new Error("Submit failed");
+        if (btn) { btn.disabled = false; }
+        showSuccess(form);
+        var modal = form.closest(".modal");
+        if (modal) setTimeout(function () { closeModal(modal); form.reset(); resetFormState(form); }, 2200);
+      }).catch(function () {
+        if (btn) { btn.disabled = false; btn.textContent = "Отправить заявку"; }
+        alert("Ошибка отправки. Попробуйте ещё раз.");
+      });
+    });
+  });
 
   /* ---------- Маска телефона (простая) ---------- */
   $$('input[type="tel"]').forEach(function (input) {

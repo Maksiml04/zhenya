@@ -395,20 +395,30 @@ li { margin-bottom: .3em; line-height: 1.6; }
 .dir-hero__title { font-size: clamp(2.6rem, 5vw, 4.2rem); font-weight: 900; margin: 0 0 .25em; letter-spacing: -.04em; line-height: 1.05; }
 .dir-hero__text { font-size: 1.1rem; max-width: 500px; line-height: 1.7; margin-bottom: 24px; }
 
-/* --- Sport: мощный, с диагональным изображением --- */
-[data-theme="sport"] .dir-hero { background: var(--text); color: #fff; }
-[data-theme="sport"] .dir-hero__title { color: #fff; text-shadow: 0 4px 30px rgba(0,0,0,.5); font-weight: 900; }
-[data-theme="sport"] .dir-hero__text { color: #d0d0d8; }
+/* --- Sport: мощный, тёмный фон с акцентным изображением --- */
+[data-theme="sport"] .dir-hero { background: #1a1a1a; color: #fff; min-height: 480px; }
+[data-theme="sport"] .dir-hero__title { color: #fff; font-weight: 900; position: relative; z-index: 2; }
+[data-theme="sport"] .dir-hero__text { color: rgba(255,255,255,.75); max-width: 520px; position: relative; z-index: 2; }
 [data-theme="sport"] .dir-hero::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(0,0,0,.88) 35%, rgba(0,0,0,.5) 60%, transparent 85%);
+  background: linear-gradient(to right, rgba(0,0,0,.85) 0%, rgba(0,0,0,.7) 50%, rgba(0,0,0,.4) 100%);
   z-index: 1;
 }
 [data-theme="sport"] .dir-hero__bg { position: absolute; inset: 0; z-index: 0; }
 [data-theme="sport"] .dir-hero__bg img { width: 100%; height: 100%; object-fit: cover; }
-[data-theme="sport"] .dir-hero__stats { display: flex; gap: 24px; margin-top: 28px; }
-[data-theme="sport"] .dir-hero__stats b { font-size: 1.6rem; font-weight: 700; }
-[data-theme="sport"] .dir-hero__stats span { font-size: .8rem; color: #888; }
+
+[data-theme="sport"] .dir-hero__stats {
+  display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap;
+  position: relative; z-index: 2;
+}
+[data-theme="sport"] .dir-hero__stats div {
+  background: rgba(255,255,255,.1); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px; padding: 14px 22px; text-align: center;
+  min-width: 100px;
+}
+[data-theme="sport"] .dir-hero__stats b { display: block; font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1.1; }
+[data-theme="sport"] .dir-hero__stats span { font-size: .78rem; color: rgba(255,255,255,.6); }
 
 /* --- Modern: сплит-экран, асимметрия --- */
 [data-theme="modern"] .dir-hero { background: var(--bg-soft); }

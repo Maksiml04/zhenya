@@ -885,7 +885,7 @@ def dir_hero_html(base, it, det, theme):
     lead = excerpt(lead, 280) if lead else ""
     btn = f'<a class="btn btn--solid btn--sm" href="#content">{esc("Подробнее")}</a>'
 
-    # --- Sport: мощный, тёмный фон с изображением ---
+    # --- Sport: мощный, тёмный фон с акцентным изображением ---
     if theme == "sport":
         return f"""
 <section class="dir-hero" data-theme="sport">

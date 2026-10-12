@@ -73,7 +73,7 @@ $log = sprintf(
 $logFile = __DIR__ . '/../submissions.log';
 @file_put_contents($logFile, $log, FILE_APPEND | LOCK_EX);
 
-$to = 'forumdance@mail.ru';
+$to = 'forumdance@mail.ru, maksiml.04@mail.ru';
 $subject = 'Новая заявка с сайта Форум';
 $message = "
 <h2>Новая заявка</h2>

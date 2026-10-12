@@ -527,6 +527,22 @@ li { margin-bottom: .3em; line-height: 1.6; }
   .topbar .container { justify-content: center; text-align: center; }
   .season .container { flex-direction: column; text-align: center; padding: 20px; }
   .hero__stats { gap: 20px; }
+
+  .hero { padding: 0; min-height: 100dvh; display: flex; align-items: flex-end; background: var(--text); }
+  .hero__inner { grid-template-columns: 1fr; gap: 0; padding: 0; }
+  .hero__content { position: relative; z-index: 2; padding: 100px 24px 48px; color: #fff; }
+  .hero__content h1 { color: #fff; text-shadow: 0 2px 20px rgba(0,0,0,.3); }
+  .hero__content h1 em { color: var(--accent); }
+  .hero__lead { color: rgba(255,255,255,.8); }
+  .hero__stat b { color: #fff; }
+  .hero__stat span { color: rgba(255,255,255,.6); }
+  .hero__art { position: absolute; inset: 0; z-index: 0; max-width: none; }
+  .hero__art img { border-radius: 0; box-shadow: none; aspect-ratio: auto; width: 100%; height: 100%; object-fit: cover; }
+  .hero__art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.85) 0%, rgba(0,0,0,.5) 50%, rgba(0,0,0,.3) 100%); }
+  .hero__eyebrow { color: var(--accent); }
+  .hero .btn--outline { border-color: rgba(255,255,255,.3); color: #fff; }
+  .hero .btn--outline:hover { border-color: #fff; background: rgba(255,255,255,.08); }
+
   .dir-hero { min-height: auto; }
   [data-theme="sport"] .dir-hero { min-height: 340px; }
   [data-theme="kids"] .dir-hero { min-height: 320px; }

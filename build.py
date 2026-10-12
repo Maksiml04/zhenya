@@ -607,6 +607,10 @@ def page_home(base):
       </div>
     </div>
     <div class="hero__art reveal"><img src="{base}{hero_img}" alt="Танцевально-спортивный центр «{esc(BRAND)}»"></div>
+    <div class="hero__promo-mobile">
+      <div class="hero__promo-text">{promo_text}</div>
+      <a class="btn btn--solid" href="{base}{promo_url}">{esc(promo_btn)}</a>
+    </div>
   </div>
 </section>
 

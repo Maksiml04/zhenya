@@ -28,7 +28,7 @@ SITE_URL = os.environ.get("SITE_URL", "https://USERNAME.github.io/zhenya")
 
 # Turnstile (Cloudflare CAPTCHA)
 TURNSTILE_SITEKEY = "0x4AAAAAAFUJ0lLeXaBJRDJb"
-TURNSTILE_API_URL = "https://forum-form-handler.lzr-leads.workers.dev"
+TURNSTILE_API_URL = ""  # относительный URL — PHP на том же сервере
 
 SITE = DATA["site"]
 BRAND = SITE["brand_name"]
@@ -326,7 +326,7 @@ def form_success(title="Заявка отправлена!"):
 def signup_form(base, uid):
     opts = "".join(f'<option value="{eattr(o)}">{esc(o)}</option>' for o in FORM_DIRECTIONS)
     return f"""
-<form data-form novalidate action="{TURNSTILE_API_URL}" method="POST">
+<form data-form novalidate action="{base}api/submit.php" method="POST">
   <div class="field">
     <label for="dir-{uid}">Направление</label>
     <select id="dir-{uid}" name="direction" required>
@@ -367,7 +367,7 @@ def render_modals(base):
     <h3 id="cb-title">Заказать звонок</h3>
     <p class="sub">Оставьте номер — перезвоним в течение 10 минут.</p>
     <div class="form-wrap">
-      <form data-form novalidate action="{TURNSTILE_API_URL}" method="POST">
+      <form data-form novalidate action="{base}api/submit.php" method="POST">
         <div class="field">
           <label for="cb-name">Ваше имя *</label>
           <input id="cb-name" type="text" name="name" placeholder="Имя" required>

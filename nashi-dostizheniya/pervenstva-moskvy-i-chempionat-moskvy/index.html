@@ -74,7 +74,7 @@
   <h3>Онлайн-запись</h3>
   <p>Оставьте заявку — подберём группу и удобное время.</p>
   
-<form data-form novalidate action="https://forum-form-handler.lzr-leads.workers.dev" method="POST">
+<form data-form novalidate action="../../api/submit.php" method="POST">
   <div class="field">
     <label for="dir-aperv">Направление</label>
     <select id="dir-aperv" name="direction" required>
@@ -166,7 +166,7 @@
     <h3 id="cb-title">Заказать звонок</h3>
     <p class="sub">Оставьте номер — перезвоним в течение 10 минут.</p>
     <div class="form-wrap">
-      <form data-form novalidate action="https://forum-form-handler.lzr-leads.workers.dev" method="POST">
+      <form data-form novalidate action="../../api/submit.php" method="POST">
         <div class="field">
           <label for="cb-name">Ваше имя *</label>
           <input id="cb-name" type="text" name="name" placeholder="Имя" required>

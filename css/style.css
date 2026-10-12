@@ -532,7 +532,7 @@ li { margin-bottom: .3em; line-height: 1.6; }
   .hero__inner { grid-template-columns: 1fr; gap: 0; padding: 0; }
   .hero__content { position: relative; z-index: 2; padding: 100px 24px 48px; color: #fff; }
   .hero__content h1 { color: #fff; text-shadow: 0 2px 20px rgba(0,0,0,.3); }
-  .hero__content h1 em { color: var(--accent); }
+  .hero__content h1 em { color: #fff; }
   .hero__lead { color: rgba(255,255,255,.8); }
   .hero__stat b { color: #fff; }
   .hero__stat span { color: rgba(255,255,255,.6); }

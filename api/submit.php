@@ -73,4 +73,20 @@ $log = sprintf(
 $logFile = __DIR__ . '/../submissions.log';
 @file_put_contents($logFile, $log, FILE_APPEND | LOCK_EX);
 
+$to = 'forumdance@mail.ru';
+$subject = 'Новая заявка с сайта Форум';
+$message = "
+<h2>Новая заявка</h2>
+<table style=\"border-collapse:collapse;width:100%;max-width:500px\">
+<tr style=\"background:#f5f5f5\"><td style=\"padding:10px;font-weight:600\">Имя</td><td style=\"padding:10px\">$name</td></tr>
+<tr><td style=\"padding:10px;font-weight:600\">Телефон</td><td style=\"padding:10px\">$phone</td></tr>
+<tr style=\"background:#f5f5f5\"><td style=\"padding:10px;font-weight:600\">Направление</td><td style=\"padding:10px\">$direction</td></tr>
+<tr><td style=\"padding:10px;font-weight:600\">Время</td><td style=\"padding:10px\">" . date('Y-m-d H:i:s') . "</td></tr>
+</table>
+";
+$headers = "MIME-Version: 1.0\r\nContent-Type: text/html; charset=utf-8\r\n";
+$headers .= "From: Форум <noreply@forum-dance.ru>\r\n";
+
+@mail($to, $subject, $message, $headers);
+
 echo json_encode(['success' => true, 'message' => 'Заявка принята']);

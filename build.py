@@ -578,7 +578,7 @@ def detail_page(base, title, trail, body_html, gallery, uid):
 # Страницы
 # ============================================================================
 def page_home(base):
-    hero_img = (PHOTOS[0]["thumb"] if PHOTOS else DIRECTIONS["items"][0]["thumb"])
+    hero_img = "img/hero-photo.png"
     about_img = (PHOTOS[1]["thumb"] if len(PHOTOS) > 1 else DIRECTIONS["items"][-1]["thumb"])
     dirs = "".join(direction_card(base, d) for d in DIRECTIONS["items"][:4])
     news = "".join(news_card(base, n) for n in NEWS["items"][:3])

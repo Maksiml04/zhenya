@@ -185,10 +185,10 @@ li { margin-bottom: .3em; line-height: 1.6; }
 .hero__art img { border-radius: var(--radius); box-shadow: var(--shadow-lg); aspect-ratio: 3/4; object-fit: cover; }
 
 /* ---------- Сезонный баннер ---------- */
-.season { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg-soft); }
-.season .container { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px; flex-wrap: wrap; }
-.season__text { font-weight: 600; font-size: 1.15rem; line-height: 1.3; }
-.season__text span { color: var(--accent); }
+.season { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--text); }
+.season .container { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 28px 24px; flex-wrap: wrap; }
+.season__text { font-weight: 700; font-size: 1.2rem; line-height: 1.4; color: #fff; }
+.season__text span { color: var(--accent); display: block; font-weight: 600; font-size: 1rem; margin-top: 4px; }
 .season .btn { flex-shrink: 0; }
 
 /* ---------- Сетки ---------- */

@@ -531,22 +531,20 @@ li { margin-bottom: .3em; line-height: 1.6; }
   .season .container { flex-direction: column; text-align: center; padding: 20px; }
   .hero__stats { gap: 20px; }
 
-  .hero { padding: 0; min-height: auto; display: flex; align-items: flex-end; background: var(--text); }
-  .hero__inner { grid-template-columns: 1fr; gap: 24px; padding: 40px 24px; }
-  .hero__content { display: block; }
-  .hero__content h1 { font-size: 1.6rem; }
+  .hero { padding: 10px 0; min-height: auto; }
+  .hero__inner { grid-template-columns: 1fr; gap: 12px; padding: 20px 24px; }
+  .hero__content h1 { font-size: 1.2rem; }
   .hero__content h1 em { color: var(--accent); }
-  .hero__lead { font-size: .95rem; }
-  .hero__stats { gap: 16px; margin-top: 20px; }
-  .hero__stat b { font-size: 1.2rem; }
-  .hero__eyebrow { font-size: .7rem; }
-  .hero__actions { justify-content: flex-start; }
-  .hero__actions .btn--solid { font-size: .9rem; padding: 10px 20px; }
-  .hero__actions .btn--outline { display: inline-flex; }
-  .hero__art { position: relative; max-width: none; margin-bottom: 0; }
-  .hero__art img { border-radius: var(--radius-sm); box-shadow: var(--shadow); aspect-ratio: 4/3; object-fit: cover; width: 100%; }
+  .hero__lead { display: none; }
+  .hero__stats { display: none; }
+  .hero__eyebrow { display: none; }
+  .hero__actions { display: none; }
+  .hero__art { display: none; }
   .hero__promo-mobile { display: none; }
-  .season { display: block; }
+  .season { display: flex; min-height: 100dvh; }
+  .season__inner { padding: 120px 24px 60px; }
+  .season__text { font-size: 2rem; }
+  .season__text span { font-size: 1.2rem; }
 
   .dir-hero { min-height: auto; }
   [data-theme="sport"] .dir-hero { min-height: 340px; }

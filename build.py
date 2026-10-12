@@ -614,10 +614,13 @@ def page_home(base):
   </div>
 </section>
 
-<section class="season">
-  <div class="container">
-    <div class="season__text">{promo_text}</div>
+<section class="season" style="background-image:url({base}{hero_img})">
+  <div class="season__overlay"></div>
+  <div class="container season__inner">
+    <div class="season__body">
+      <div class="season__text">{promo_text}</div>
       <a class="btn btn--solid" href="{base}{promo_url}">{esc(promo_btn)}</a>
+    </div>
   </div>
 </section>
 

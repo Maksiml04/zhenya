@@ -185,12 +185,14 @@ li { margin-bottom: .3em; line-height: 1.6; }
 .hero__art { position: relative; }
 .hero__art img { border-radius: var(--radius); box-shadow: var(--shadow-lg); aspect-ratio: 3/4; object-fit: cover; }
 
-/* ---------- Сезонный баннер ---------- */
-.season { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--text); }
-.season .container { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 28px 24px; flex-wrap: wrap; }
-.season__text { font-weight: 700; font-size: 1.2rem; line-height: 1.4; color: #fff; }
-.season__text span { color: var(--accent); display: block; font-weight: 600; font-size: 1rem; margin-top: 4px; }
-.season .btn { flex-shrink: 0; }
+/* ---------- Сезонный баннер (как на оригинале) ---------- */
+.season { position: relative; overflow: hidden; min-height: 340px; display: flex; align-items: center; background: #12110d; background-size: cover; background-position: center; }
+.season__overlay { position: absolute; inset: 0; background: rgba(0,0,0,.55); z-index: 1; }
+.season__inner { position: relative; z-index: 2; width: 100%; text-align: center; padding: 60px 24px; }
+.season__body { max-width: 520px; margin: 0 auto; }
+.season__text { font-weight: 300; font-size: 2.2rem; line-height: 1.15; color: #fff; margin-bottom: 24px; }
+.season__text span { display: block; font-size: 1.3rem; font-weight: 300; margin-top: 8px; color: rgba(255,255,255,.8); }
+.season .btn { font-size: 1.1rem; padding: 16px 40px; font-weight: 700; display: inline-flex; }
 
 /* ---------- Сетки ---------- */
 .grid { display: grid; gap: 24px; }
@@ -529,18 +531,22 @@ li { margin-bottom: .3em; line-height: 1.6; }
   .season .container { flex-direction: column; text-align: center; padding: 20px; }
   .hero__stats { gap: 20px; }
 
-  .hero { padding: 0; min-height: 100dvh; display: flex; align-items: flex-end; background: var(--text); }
-  .hero__inner { grid-template-columns: 1fr; gap: 0; padding: 0; }
-  .hero__content { display: none; }
-  .hero__art { position: absolute; inset: 0; z-index: 0; max-width: none; }
-  .hero__art { overflow: hidden; }
-  .hero__art img { border-radius: 0; box-shadow: none; aspect-ratio: auto; width: 100%; height: 100%; object-fit: cover; transform: scale(1.25); transform-origin: bottom center; }
-  .hero__art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.85) 0%, rgba(0,0,0,.55) 50%, rgba(0,0,0,.25) 100%); }
-  .hero__promo-mobile { display: block; position: relative; z-index: 2; padding: 24px 24px 40px; text-align: center; width: 100%; }
-  .hero__promo-text { font-size: 1.6rem; font-weight: 700; line-height: 1.2; color: #fff; margin-bottom: 8px; }
-  .hero__promo-text span { display: block; font-size: 1.1rem; font-weight: 400; margin-top: 4px; color: rgba(255,255,255,.85); }
-  .hero__promo-mobile .btn { margin-top: 12px; font-size: 1.05rem; padding: 16px 36px; font-weight: 700; letter-spacing: .02em; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
-  .season { display: none; }
+  .hero { padding: 0; min-height: auto; display: flex; align-items: flex-end; background: var(--text); }
+  .hero__inner { grid-template-columns: 1fr; gap: 24px; padding: 40px 24px; }
+  .hero__content { display: block; }
+  .hero__content h1 { font-size: 1.6rem; }
+  .hero__content h1 em { color: var(--accent); }
+  .hero__lead { font-size: .95rem; }
+  .hero__stats { gap: 16px; margin-top: 20px; }
+  .hero__stat b { font-size: 1.2rem; }
+  .hero__eyebrow { font-size: .7rem; }
+  .hero__actions { justify-content: flex-start; }
+  .hero__actions .btn--solid { font-size: .9rem; padding: 10px 20px; }
+  .hero__actions .btn--outline { display: inline-flex; }
+  .hero__art { position: relative; max-width: none; margin-bottom: 0; }
+  .hero__art img { border-radius: var(--radius-sm); box-shadow: var(--shadow); aspect-ratio: 4/3; object-fit: cover; width: 100%; }
+  .hero__promo-mobile { display: none; }
+  .season { display: block; }
 
   .dir-hero { min-height: auto; }
   [data-theme="sport"] .dir-hero { min-height: 340px; }

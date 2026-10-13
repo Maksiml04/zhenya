@@ -24,7 +24,7 @@ DATA = json.load(open(os.path.join(ROOT, "content.json"), encoding="utf-8"))
 # Домен для sitemap.xml / robots.txt
 # Для GitHub Pages укажите: https://USERNAME.github.io/zhenya
 # Можно задать через переменную окружения SITE_URL
-SITE_URL = os.environ.get("SITE_URL", "https://USERNAME.github.io/zhenya")
+SITE_URL = os.environ.get("SITE_URL", "https://forum-dance.ru")
 
 # Turnstile (Cloudflare CAPTCHA)
 TURNSTILE_SITEKEY = "0x4AAAAAAFUJ0lLeXaBJRDJb"

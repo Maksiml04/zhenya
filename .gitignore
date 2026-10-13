@@ -19,3 +19,8 @@ Thumbs.db
 
 # Node
 node_modules/
+
+# Server-only secrets and logs
+private-config.php
+submissions.log
+*.log

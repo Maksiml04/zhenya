@@ -16,6 +16,7 @@
     if (!nav) return;
     nav.classList.remove("is-open");
     if (burger) burger.classList.remove("is-open");
+    if (burger) burger.setAttribute("aria-expanded", "false");
     if (backdrop) backdrop.classList.remove("is-open");
     document.body.style.overflow = "";
   }
@@ -23,6 +24,7 @@
     if (!nav) return;
     nav.classList.add("is-open");
     if (burger) burger.classList.add("is-open");
+    if (burger) burger.setAttribute("aria-expanded", "true");
     if (backdrop) backdrop.classList.add("is-open");
     document.body.style.overflow = "hidden";
   }
@@ -111,7 +113,7 @@
     }
   });
 
-  /* ---------- Валидация + отправка форм (Turnstile + Worker) ---------- */
+  /* ---------- Валидация + отправка форм (Turnstile + PHP endpoint) ---------- */
   function validate(form) {
     var ok = true;
     $$("[required]", form).forEach(function (el) {

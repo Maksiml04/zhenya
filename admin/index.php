@@ -1,7 +1,27 @@
 <?php
 require_once __DIR__ . '/config.php';
 
+$isHttps = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+session_set_cookie_params([
+    'secure' => $isHttps,
+    'httponly' => true,
+    'samesite' => 'Strict',
+    'path' => '/admin/',
+]);
 session_start();
+
+if (empty($_SESSION['csrf'])) {
+    $_SESSION['csrf'] = bin2hex(random_bytes(32));
+}
+
+function verify_csrf(): void
+{
+    $token = (string) ($_POST['csrf'] ?? '');
+    if ($token === '' || !hash_equals((string) $_SESSION['csrf'], $token)) {
+        http_response_code(403);
+        exit('Invalid request');
+    }
+}
 
 if (isset($_GET['logout'])) {
     session_destroy();
@@ -12,7 +32,9 @@ if (isset($_GET['logout'])) {
 $authed = ($_SESSION['admin'] ?? false);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$authed) {
-    if (($_POST['password'] ?? '') === ADMIN_PASSWORD) {
+    verify_csrf();
+    if (password_verify((string) ($_POST['password'] ?? ''), ADMIN_PASSWORD_HASH)) {
+        session_regenerate_id(true);
         $_SESSION['admin'] = true;
         $authed = true;
     } else {
@@ -40,6 +62,7 @@ if (!$authed) {
     <form class="login" method="post">
     <h1>Админ-панель</h1>
     <?php if (isset($error)) echo "<div class=\"err\">$error</div>" ?>
+    <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
     <input type="password" name="password" placeholder="Пароль" required autofocus>
     <button type="submit">Войти</button>
     </form>
@@ -56,6 +79,19 @@ $action = $_GET['action'] ?? 'list';
 $slug = $_GET['slug'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $authed) {
+    verify_csrf();
+
+    if (isset($_POST['delete'])) {
+        $delSlug = (string) $_POST['delete'];
+        $newsItems = array_values(array_filter($newsItems, fn($i) => $i['slug'] !== $delSlug));
+        unset($newsDetails[$delSlug]);
+        file_put_contents(DATA_FILE, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX);
+        $cmd = 'cd ' . escapeshellarg(dirname(DATA_FILE)) . ' && python3 ' . escapeshellarg(BUILD_SCRIPT) . ' 2>&1';
+        exec($cmd);
+        header('Location: ?deleted=1');
+        exit;
+    }
+
     $title = trim($_POST['title'] ?? '');
     $date = trim($_POST['date'] ?? '');
     $body = trim($_POST['body'] ?? '');
@@ -77,53 +113,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $authed) {
             'gallery' => [],
         ];
 
-        if (!empty($_FILES['image']['name'])) {
-            $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-            if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
-                $imgName = time() . '_' . md5($_FILES['image']['name']) . ".$ext";
+        $newImage = false;
+        $upload = $_FILES['image'] ?? null;
+        if (is_array($upload) && ($upload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+            $maxBytes = 8 * 1024 * 1024;
+            $tmpPath = (string) ($upload['tmp_name'] ?? '');
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mime = is_uploaded_file($tmpPath) && ($upload['size'] ?? 0) <= $maxBytes
+                ? $finfo->file($tmpPath)
+                : false;
+            $allowedMime = ['image/jpeg', 'image/png', 'image/webp'];
+            $size = $mime !== false ? @getimagesize($tmpPath) : false;
+
+            if ($size !== false && in_array($mime, $allowedMime, true) && $size[0] > 0 && $size[1] > 0) {
+                $imgName = bin2hex(random_bytes(16)) . '.jpg';
                 $smallDir = NEWS_DIR . '/small';
                 $mediumDir = NEWS_DIR . '/medium';
                 @mkdir($smallDir, 0755, true);
                 @mkdir($mediumDir, 0755, true);
 
-                $origPath = $_FILES['image']['tmp_name'];
-                $smallPath = "$smallDir/$imgName";
-                $mediumPath = "$mediumDir/$imgName";
-
-                copy($origPath, $mediumPath);
-
-                $size = getimagesize($origPath);
                 $srcW = $size[0];
                 $srcH = $size[1];
-                $thumbW = 180;
-                $thumbH = round($srcH * ($thumbW / $srcW));
+                $srcImg = @imagecreatefromstring((string) file_get_contents($tmpPath));
+                if ($srcImg !== false) {
+                    $mediumW = min($srcW, 1600);
+                    $mediumH = max(1, (int) round($srcH * ($mediumW / $srcW)));
+                    $mediumImg = imagecreatetruecolor($mediumW, $mediumH);
+                    imagecopyresampled($mediumImg, $srcImg, 0, 0, 0, 0, $mediumW, $mediumH, $srcW, $srcH);
+                    imagejpeg($mediumImg, "$mediumDir/$imgName", 85);
 
-                $srcImg = imagecreatefromstring(file_get_contents($origPath));
-                $thumbImg = imagecreatetruecolor($thumbW, $thumbH);
-                imagecopyresampled($thumbImg, $srcImg, 0, 0, 0, 0, $thumbW, $thumbH, $srcW, $srcH);
+                    $thumbW = min(450, $mediumW);
+                    $thumbH = max(1, (int) round($mediumH * ($thumbW / $mediumW)));
+                    $thumbImg = imagecreatetruecolor($thumbW, $thumbH);
+                    imagecopyresampled($thumbImg, $mediumImg, 0, 0, 0, 0, $thumbW, $thumbH, $mediumW, $mediumH);
+                    imagejpeg($thumbImg, "$smallDir/$imgName", 80);
 
-                imagejpeg($thumbImg, $smallPath, 80);
-                imagedestroy($srcImg);
-                imagedestroy($thumbImg);
-
-                $newsItem['thumb'] = "userfls/news/small/$imgName";
-
-                $newsDetail['gallery'][] = [
-                    'full' => "userfls/news/medium/$imgName",
-                    'thumb' => "userfls/news/small/$imgName",
-                ];
+                    imagedestroy($srcImg);
+                    imagedestroy($mediumImg);
+                    imagedestroy($thumbImg);
+                    $newImage = true;
+                    $newsItem['thumb'] = "userfls/news/small/$imgName";
+                    $newsDetail['gallery'][] = [
+                        'full' => "userfls/news/medium/$imgName",
+                        'thumb' => "userfls/news/small/$imgName",
+                    ];
+                }
             }
         }
 
         if ($editSlug && isset($newsDetails[$editSlug])) {
             $old = $newsDetails[$editSlug];
-            $newsDetail['gallery'] = $old['gallery'] ?? [];
-            if (!empty($_FILES['image']['name']) && !empty($newsDetail['gallery'])) {
-                $newsDetail['gallery'][0] = [
-                    'full' => "userfls/news/medium/$imgName",
-                    'thumb' => "userfls/news/small/$imgName",
-                ];
+            $oldGallery = $old['gallery'] ?? [];
+            if ($newImage) {
+                if ($oldGallery !== []) {
+                    $oldGallery[0] = $newsDetail['gallery'][0];
+                } else {
+                    $oldGallery[] = $newsDetail['gallery'][0];
+                }
             }
+            $newsDetail['gallery'] = $oldGallery;
 
             foreach ($newsItems as &$item) {
                 if ($item['slug'] === $editSlug) {
@@ -140,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $authed) {
             $newsDetails[$newSlug] = $newsDetail;
         }
 
-        file_put_contents(DATA_FILE, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        file_put_contents(DATA_FILE, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX);
 
         $output = '';
         $exitCode = 0;
@@ -152,17 +200,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $authed) {
     }
 
     header('Location: ?slug=' . urlencode($newSlug ?? '') . '&saved=1');
-    exit;
-}
-
-if (isset($_GET['delete']) && $authed) {
-    $delSlug = $_GET['delete'];
-    $newsItems = array_values(array_filter($newsItems, fn($i) => $i['slug'] !== $delSlug));
-    unset($newsDetails[$delSlug]);
-    file_put_contents(DATA_FILE, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-    $cmd = 'cd ' . escapeshellarg(dirname(DATA_FILE)) . ' && python3 ' . escapeshellarg(BUILD_SCRIPT) . ' 2>&1';
-    exec($cmd);
-    header('Location: ?deleted=1');
     exit;
 }
 
@@ -219,6 +256,8 @@ img.preview{max-width:100px;border-radius:4px;margin-top:4px}
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
+  var container = document.querySelector('#editor');
+  if (!container) return;
   var editor = new Quill('#editor', {
     theme:'snow',
     modules:{
@@ -228,7 +267,8 @@ document.addEventListener('DOMContentLoaded',function(){
   });
   var textarea = document.querySelector('textarea[name="body"]');
   editor.root.innerHTML = textarea.value;
-  document.querySelector('form').addEventListener('submit',function(){
+  var form = container.closest('form');
+  if (form) form.addEventListener('submit',function(){
     textarea.value = editor.root.innerHTML;
   });
 });
@@ -260,7 +300,11 @@ document.addEventListener('DOMContentLoaded',function(){
 <td><a href="?slug=<?= urlencode($item['slug']) ?>" style="color:inherit;text-decoration:none"><?= htmlspecialchars($item['title']) ?></a></td>
 <td class="actions">
 <a class="btn btn-outline" href="?slug=<?= urlencode($item['slug']) ?>" style="padding:4px 10px;font-size:.8rem">✎</a>
-<a class="btn btn-danger" href="?delete=<?= urlencode($item['slug']) ?>" style="padding:4px 10px;font-size:.8rem" onclick="return confirm('Удалить новость?')">✕</a>
+<form method="post" style="display:inline" onsubmit="return confirm('Удалить новость?')">
+<input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
+<input type="hidden" name="delete" value="<?= htmlspecialchars($item['slug']) ?>">
+<button class="btn btn-danger" type="submit" style="padding:4px 10px;font-size:.8rem">✕</button>
+</form>
 </td>
 </tr>
 <?php endforeach; ?>
@@ -273,6 +317,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <div class="card">
 <h2><?= $editItem ? 'Редактировать' : 'Добавить новость' ?></h2>
 <form method="post" enctype="multipart/form-data">
+<input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
 <?php if ($editItem): ?>
 <input type="hidden" name="edit_slug" value="<?= htmlspecialchars($editItem['slug']) ?>">
 <?php endif; ?>

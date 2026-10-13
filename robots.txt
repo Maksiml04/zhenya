@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://USERNAME.github.io/zhenya/sitemap.xml
+Sitemap: https://forum-dance.ru/sitemap.xml

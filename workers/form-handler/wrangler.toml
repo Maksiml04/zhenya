@@ -2,5 +2,4 @@ name = "forum-form-handler"
 main = "src/index.js"
 compatibility_date = "2025-10-01"
 
-[env.production]
-vars = { TURNSTILE_SECRET = "" }
+# This Worker is deprecated. The production form endpoint is api/submit.php.

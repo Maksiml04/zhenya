@@ -516,7 +516,7 @@ li { margin-bottom: .3em; line-height: 1.6; }
   .nav__dropdown a:hover { background: var(--bg-soft); color: var(--text); }
   .nav__mobile-cta { display: block; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
   .nav__mobile-cta .btn { width: 100%; }
-  .nav-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 940; opacity: 0; visibility: hidden; transition: .3s; }
+  .nav-backdrop { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 940; opacity: 0; visibility: hidden; transition: .3s; }
   .nav-backdrop.is-open { opacity: 1; visibility: visible; }
   .aside-sticky { position: static; }
 }

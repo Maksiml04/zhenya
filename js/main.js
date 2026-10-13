@@ -113,7 +113,7 @@
     }
   });
 
-  /* ---------- Валидация + отправка форм (Yandex SmartCaptcha + PHP endpoint) ---------- */
+  /* ---------- Валидация + отправка форм ---------- */
   function validate(form) {
     var ok = true;
     $$("[required]", form).forEach(function (el) {
@@ -126,9 +126,11 @@
       if (bad) ok = false;
     });
     // Turnstile
-    var turnstileResp = form.querySelector('[name="cf-turnstile-response"]');
-    if (turnstileResp && !turnstileResp.value) {
+    var robot = form.querySelector('input[name="robot"]');
+    if (robot && !robot.checked) {
       ok = false;
+      robot.style.outline = "2px solid #dc2626";
+      setTimeout(function () { robot.style.outline = ""; }, 1600);
     }
     // Согласие на обработку данных
     var agree = form.querySelector('input[name="agree"]');
@@ -144,13 +146,6 @@
       success.classList.add("is-shown");
     } else {
       alert("Спасибо! Заявка отправлена. Мы свяжемся с вами в ближайшее время.");
-    }
-    if (window.smartCaptcha) {
-      var container = form.querySelector('.smart-captcha');
-      if (container) {
-        var widgetId = container.getAttribute('data-widget-id');
-        if (widgetId) window.smartCaptcha.reset(widgetId);
-      }
     }
   }
 
@@ -260,16 +255,3 @@
   var year = $("#year");
   if (year) year.textContent = new Date().getFullYear();
 })();
-
-/* ---------- Ручной рендер Яндекс SmartCaptcha ---------- */
-document.addEventListener("DOMContentLoaded", function () {
-  if (window.smartCaptcha && window.smartCaptcha.render) {
-    document.querySelectorAll(".smart-captcha").forEach(function (el) {
-      try {
-        window.smartCaptcha.render(el);
-      } catch (e) {
-        // ignore
-      }
-    });
-  }
-});

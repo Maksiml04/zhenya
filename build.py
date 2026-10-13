@@ -26,8 +26,7 @@ DATA = json.load(open(os.path.join(ROOT, "content.json"), encoding="utf-8"))
 # Можно задать через переменную окружения SITE_URL
 SITE_URL = os.environ.get("SITE_URL", "https://forum-dance.ru")
 
-# Turnstile (Cloudflare CAPTCHA) — заменён на Яндекс SmartCaptcha
-YANDEX_CAPTCHA_SITEKEY = "ysc1_7jIYCka8bXtVcvHf6cP6IeVGWq1lypOTcN6LWTGw87281a73"
+# Простая проверка (honeypot + чекбокс)
 
 SITE = DATA["site"]
 BRAND = SITE["brand_name"]
@@ -294,12 +293,14 @@ def render_footer(base):
 FORM_DIRECTIONS = [d["title"] for d in DIRECTIONS["items"]]
 
 
-YANDEX_CAPTCHA_SITEKEY_FMT = YANDEX_CAPTCHA_SITEKEY
-
 
 def captcha_html(uid):
     return f"""
-<div class="smart-captcha" data-sitekey="{YANDEX_CAPTCHA_SITEKEY_FMT}"></div>"""
+<div class="captcha">
+  <input type="hidden" name="website" value="">
+  <input type="checkbox" name="robot" id="robot-{uid}" required>
+  <label for="robot-{uid}">Я не робот</label>
+</div>"""
 
 
 def agree_html(base):
@@ -445,7 +446,6 @@ def layout(title, base, body, active_url="", meta_desc=None, og=None, page_url="
 <button class="to-top" aria-label="Наверх">↑</button>
 {render_modals(base)}
 <script src="{base}js/main.js"></script>
-<script src="https://smartcaptcha.yandexcloud.net/captcha.js" defer></script>
 </body>
 </html>
 """

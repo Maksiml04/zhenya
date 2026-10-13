@@ -46,7 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $name = trim((string) ($_POST['name'] ?? ''));
 $phone = trim((string) ($_POST['phone'] ?? ''));
 $direction = trim((string) ($_POST['direction'] ?? ''));
-$token = trim((string) ($_POST['smart-token'] ?? ''));
+$token = trim((string) ($_POST['robot'] ?? ''));
+$honeypot = trim((string) ($_POST['website'] ?? ''));
 
 if ($name === '' || strlen($name) > 120) {
     respond(422, ['error' => 'Invalid name']);
@@ -57,7 +58,7 @@ if ($phone === '' || strlen($phone) > 40 || preg_match('/\D/', $phone) === 1 || 
 if (strlen($direction) > 120 || preg_match('/[\r\n]/', $name . $phone . $direction)) {
     respond(422, ['error' => 'Invalid form data']);
 }
-if ($token === '' || strlen($token) > 2048) {
+if (!$token || $honeypot !== '') {
     respond(400, ['error' => 'Missing captcha']);
 }
 
@@ -71,31 +72,6 @@ if (is_file($rateFile) && time() - (int) @file_get_contents($rateFile) < 60) {
     respond(429, ['error' => 'Too many requests']);
 }
 @file_put_contents($rateFile, (string) time(), LOCK_EX);
-
-$ch = curl_init('https://smartcaptcha.yandexcloud.net/validate');
-curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_POSTFIELDS => http_build_query([
-        'secret' => (string) ($config['captcha_secret'] ?? ''),
-        'token' => $token,
-    ]),
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 10,
-    CURLOPT_SSL_VERIFYPEER => true,
-]);
-$response = curl_exec($ch);
-$httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($httpCode !== 200 || !is_string($response) || $response === '') {
-    respond(502, ['error' => 'Captcha verification failed']);
-}
-
-$verification = json_decode($response, true);
-
-if (!is_array($verification) || ($verification['status'] ?? '') !== 'ok') {
-    respond(403, ['error' => 'Captcha verification rejected']);
-}
 
 $nameHtml = htmlspecialchars($name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 $phoneHtml = htmlspecialchars($phone, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');

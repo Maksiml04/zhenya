@@ -103,7 +103,11 @@
     <input id="phone-news" type="tel" name="phone" placeholder="+7 (___) ___-__-__" required>
   </div>
   
-<div class="smart-captcha" data-sitekey="ysc1_7jIYCka8bXtVcvHf6cP6IeVGWq1lypOTcN6LWTGw87281a73"></div>
+<div class="captcha">
+  <input type="hidden" name="website" value="">
+  <input type="checkbox" name="robot" id="robot-news" required>
+  <label for="robot-news">Я не робот</label>
+</div>
   <button class="btn btn--light" type="submit" style="width:100%">Отправить заявку</button>
   
 <div class="form-note">
@@ -188,7 +192,11 @@
           <input id="cb-phone" type="tel" name="phone" placeholder="+7 (___) ___-__-__" required>
         </div>
         
-<div class="smart-captcha" data-sitekey="ysc1_7jIYCka8bXtVcvHf6cP6IeVGWq1lypOTcN6LWTGw87281a73"></div>
+<div class="captcha">
+  <input type="hidden" name="website" value="">
+  <input type="checkbox" name="robot" id="robot-cb" required>
+  <label for="robot-cb">Я не робот</label>
+</div>
         <button class="btn btn--solid" type="submit" style="width:100%">Перезвоните мне</button>
         
 <div class="form-note">
@@ -214,6 +222,5 @@
   <div class="lightbox__cap"></div>
 </div>
 <script src="../../js/main.js"></script>
-<script src="https://smartcaptcha.yandexcloud.net/captcha.js" defer></script>
 </body>
 </html>

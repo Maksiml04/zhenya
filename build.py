@@ -433,7 +433,7 @@ def layout(title, base, body, active_url="", meta_desc=None, og=None, page_url="
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="icon" href="{base}img/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="{base}css/style.css">
-<script src="https://smartcaptcha.yandexcloud.net/captcha.js?render=onload&onload=onCaptchaLoad" defer></script>
+<script src="https://smartcaptcha.yandexcloud.net/captcha.js"></script>
 <script type="application/ld+json">{jsonld}</script>
 </head>
 <body>

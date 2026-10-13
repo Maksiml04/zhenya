@@ -157,10 +157,6 @@
     if (success) success.classList.remove("is-shown");
   }
 
-  window.onCaptchaLoad = function () {
-    $$('.smart-captcha').forEach(function (el) { el.classList.remove('err'); });
-  };
-
   $$("form[data-form]").forEach(function (form) {
     $$("input, select, textarea", form).forEach(function (el) {
       el.addEventListener("input", function () { el.classList.remove("err"); });

@@ -260,3 +260,16 @@
   var year = $("#year");
   if (year) year.textContent = new Date().getFullYear();
 })();
+
+/* ---------- Ручной рендер Яндекс SmartCaptcha ---------- */
+document.addEventListener("DOMContentLoaded", function () {
+  if (window.smartCaptcha && window.smartCaptcha.render) {
+    document.querySelectorAll(".smart-captcha").forEach(function (el) {
+      try {
+        window.smartCaptcha.render(el);
+      } catch (e) {
+        // ignore
+      }
+    });
+  }
+});

@@ -52,7 +52,8 @@ $honeypot = trim((string) ($_POST['website'] ?? ''));
 if ($name === '' || strlen($name) > 120) {
     respond(422, ['error' => 'Invalid name']);
 }
-if ($phone === '' || strlen($phone) > 40 || preg_match('/\D/', $phone) === 1 || strlen(preg_replace('/\D/', '', $phone)) < 10) {
+$phoneDigits = preg_replace('/\D/', '', $phone);
+if ($phone === '' || strlen($phone) > 40 || strlen($phoneDigits) < 10) {
     respond(422, ['error' => 'Invalid phone']);
 }
 if (strlen($direction) > 120 || preg_match('/[\r\n]/', $name . $phone . $direction)) {

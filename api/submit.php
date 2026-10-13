@@ -12,7 +12,7 @@ function respond(int $status, array $payload): never
     exit;
 }
 
-$configPath = dirname(__DIR__, 2) . '/private-config.php';
+$configPath = dirname(__DIR__, 3) . '/private-config.php';
 if (!is_readable($configPath)) {
     respond(500, ['error' => 'Server configuration is unavailable']);
 }
@@ -61,7 +61,7 @@ if ($token === '' || strlen($token) > 2048) {
     respond(400, ['error' => 'Missing captcha']);
 }
 
-$rateLimitDir = $config['rate_limit_dir'] ?? dirname(__DIR__, 2) . '/form-rate-limit';
+$rateLimitDir = $config['rate_limit_dir'] ?? dirname(__DIR__, 3) . '/form-rate-limit';
 if (!is_dir($rateLimitDir)) {
     @mkdir($rateLimitDir, 0700, true);
 }
@@ -124,7 +124,7 @@ $headers .= 'From: Форум <' . ($config['mail_from'] ?? 'noreply@forum-dance
 $recipients = array_values(array_filter($config['mail_to'] ?? [], 'is_string'));
 $mailOk = $recipients !== [] && @mail(implode(',', $recipients), $subject, $message, $headers);
 
-$logFile = (string) ($config['log_file'] ?? dirname(__DIR__, 2) . '/submissions.log');
+$logFile = (string) ($config['log_file'] ?? dirname(__DIR__, 3) . '/submissions.log');
 $safeIpHash = substr(hash('sha256', $clientIp), 0, 16);
 $logLine = sprintf(
     "[%s] status=%s direction=%s ip_hash=%s\n",

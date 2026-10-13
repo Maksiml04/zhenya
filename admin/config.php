@@ -1,6 +1,6 @@
 <?php
 
-$privateConfigPath = dirname(__DIR__, 2) . '/private-config.php';
+$privateConfigPath = dirname(__DIR__, 3) . '/private-config.php';
 if (!is_readable($privateConfigPath)) {
     http_response_code(500);
     exit('Server configuration is unavailable');

@@ -27,7 +27,7 @@ DATA = json.load(open(os.path.join(ROOT, "content.json"), encoding="utf-8"))
 SITE_URL = os.environ.get("SITE_URL", "https://forum-dance.ru")
 
 # Turnstile (Cloudflare CAPTCHA) — заменён на Яндекс SmartCaptcha
-YANDEX_CAPTCHA_SITEKEY = "ysc1_XXXXXXXXXX"  # заменить на ваш ключ из Яндекс Облака
+YANDEX_CAPTCHA_SITEKEY = "ysc1_7jIYCka8bXtVcvHf6cP6IeVGWq1lypOTcN6LWTGw87281a73"
 
 SITE = DATA["site"]
 BRAND = SITE["brand_name"]

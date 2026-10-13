@@ -26,9 +26,8 @@ DATA = json.load(open(os.path.join(ROOT, "content.json"), encoding="utf-8"))
 # Можно задать через переменную окружения SITE_URL
 SITE_URL = os.environ.get("SITE_URL", "https://forum-dance.ru")
 
-# Turnstile (Cloudflare CAPTCHA)
-TURNSTILE_SITEKEY = "0x4AAAAAAFUJ0lLeXaBJRDJb"
-TURNSTILE_API_URL = ""  # относительный URL — PHP на том же сервере
+# Turnstile (Cloudflare CAPTCHA) — заменён на Яндекс SmartCaptcha
+YANDEX_CAPTCHA_SITEKEY = "ysc1_XXXXXXXXXX"  # заменить на ваш ключ из Яндекс Облака
 
 SITE = DATA["site"]
 BRAND = SITE["brand_name"]
@@ -295,12 +294,12 @@ def render_footer(base):
 FORM_DIRECTIONS = [d["title"] for d in DIRECTIONS["items"]]
 
 
-TURNSTILE_SITEKEY_FMT = TURNSTILE_SITEKEY
+YANDEX_CAPTCHA_SITEKEY_FMT = YANDEX_CAPTCHA_SITEKEY
 
 
 def captcha_html(uid):
     return f"""
-<div class="cf-turnstile" data-sitekey="{TURNSTILE_SITEKEY_FMT}" data-action="submit" data-callback="onTurnstileSuccess"></div>"""
+<div class="smart-captcha" data-sitekey="{YANDEX_CAPTCHA_SITEKEY_FMT}"></div>"""
 
 
 def agree_html(base):
@@ -434,7 +433,7 @@ def layout(title, base, body, active_url="", meta_desc=None, og=None, page_url="
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="icon" href="{base}img/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="{base}css/style.css">
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://smartcaptcha.yandexcloud.net/captcha.js?render=onload&onload=onCaptchaLoad" defer></script>
 <script type="application/ld+json">{jsonld}</script>
 </head>
 <body>

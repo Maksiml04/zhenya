@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $name = trim((string) ($_POST['name'] ?? ''));
 $phone = trim((string) ($_POST['phone'] ?? ''));
 $direction = trim((string) ($_POST['direction'] ?? ''));
-$token = trim((string) ($_POST['cf-turnstile-response'] ?? ''));
+$token = trim((string) ($_POST['smart-token'] ?? ''));
 
 if ($name === '' || strlen($name) > 120) {
     respond(422, ['error' => 'Invalid name']);
@@ -72,12 +72,12 @@ if (is_file($rateFile) && time() - (int) @file_get_contents($rateFile) < 60) {
 }
 @file_put_contents($rateFile, (string) time(), LOCK_EX);
 
-$ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+$ch = curl_init('https://smartcaptcha.yandexcloud.net/validate');
 curl_setopt_array($ch, [
     CURLOPT_POST => true,
     CURLOPT_POSTFIELDS => http_build_query([
-        'secret' => (string) ($config['turnstile_secret'] ?? ''),
-        'response' => $token,
+        'secret' => (string) ($config['captcha_secret'] ?? ''),
+        'token' => $token,
     ]),
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_TIMEOUT => 10,
@@ -92,14 +92,8 @@ if ($httpCode !== 200 || !is_string($response) || $response === '') {
 }
 
 $verification = json_decode($response, true);
-$expectedAction = (string) ($config['turnstile_action'] ?? 'submit');
-$expectedHosts = $config['turnstile_hostnames'] ?? [];
-if (
-    !is_array($verification)
-    || ($verification['success'] ?? false) !== true
-    || ($verification['action'] ?? '') !== $expectedAction
-    || !in_array(($verification['hostname'] ?? ''), $expectedHosts, true)
-) {
+
+if (!is_array($verification) || ($verification['status'] ?? '') !== 'ok') {
     respond(403, ['error' => 'Captcha verification rejected']);
 }
 

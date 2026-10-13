@@ -113,7 +113,7 @@
     }
   });
 
-  /* ---------- Валидация + отправка форм (Turnstile + PHP endpoint) ---------- */
+  /* ---------- Валидация + отправка форм (Yandex SmartCaptcha + PHP endpoint) ---------- */
   function validate(form) {
     var ok = true;
     $$("[required]", form).forEach(function (el) {
@@ -145,9 +145,12 @@
     } else {
       alert("Спасибо! Заявка отправлена. Мы свяжемся с вами в ближайшее время.");
     }
-    if (window.turnstile) {
-      var widget = form.querySelector('.cf-turnstile');
-      if (widget) turnstile.reset(widget);
+    if (window.smartCaptcha) {
+      var container = form.querySelector('.smart-captcha');
+      if (container) {
+        var widgetId = container.getAttribute('data-widget-id');
+        if (widgetId) window.smartCaptcha.reset(widgetId);
+      }
     }
   }
 
@@ -159,8 +162,8 @@
     if (success) success.classList.remove("is-shown");
   }
 
-  window.onTurnstileSuccess = function () {
-    $$(".captcha.err").forEach(function (c) { c.classList.remove("err"); });
+  window.onCaptchaLoad = function () {
+    $$('.smart-captcha').forEach(function (el) { el.classList.remove('err'); });
   };
 
   $$("form[data-form]").forEach(function (form) {

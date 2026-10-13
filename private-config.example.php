@@ -1,9 +1,8 @@
 <?php
 
 return [
-    'turnstile_secret' => 'REPLACE_WITH_A_NEW_TURNSTILE_SECRET',
-    'turnstile_action' => 'submit',
-    'turnstile_hostnames' => [
+    'captcha_secret' => 'REPLACE_WITH_YANDEX_CAPTCHA_SECRET',
+    'captcha_hostnames' => [
         'forum-dance.ru',
         'www.forum-dance.ru',
     ],

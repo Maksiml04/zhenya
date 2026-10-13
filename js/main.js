@@ -163,7 +163,8 @@
     });
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      if (!validate(form)) return;
+      var valid = validate(form);
+      if (!valid) { alert("Заполните все поля"); return; }
 
       var btn = form.querySelector('button[type="submit"]');
       if (btn) { btn.disabled = true; btn.textContent = "Отправка…"; }

@@ -550,15 +550,17 @@ def achievement_card(base, it):
 # Страница-деталь (универсальная)
 # ============================================================================
 def detail_body(base, title, body_html, gallery):
+    body = fill_tokens(body_html, base)
+    remaining = [g for g in (gallery or []) if g['full'] not in body and g['thumb'] not in body]
     lead = ""
-    rest = gallery or []
+    rest = remaining
     if rest:
         g0 = rest[0]
         lead = (f'<figure class="lead-img zoomable" data-full="{base}{g0["full"]}" data-caption="{eattr(title)}">'
                 f'<img src="{base}{g0["full"]}" alt="{eattr(title)}" loading="lazy"></figure>')
         rest = rest[1:]
     gal = gallery_html(base, rest, title)
-    return lead + fill_tokens(body_html, base) + gal
+    return lead + body + gal
 
 
 def detail_page(base, title, trail, body_html, gallery, uid):

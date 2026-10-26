@@ -113,65 +113,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $authed) {
             'gallery' => [],
         ];
 
-        $newImage = false;
-        $upload = $_FILES['image'] ?? null;
-        if (is_array($upload) && ($upload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+        $uploads = $_FILES['images'] ?? null;
+        $processedImages = [];
+        if (is_array($uploads) && isset($uploads['error']) && is_array($uploads['error'])) {
             $maxBytes = 8 * 1024 * 1024;
-            $tmpPath = (string) ($upload['tmp_name'] ?? '');
-            $finfo = new finfo(FILEINFO_MIME_TYPE);
-            $mime = is_uploaded_file($tmpPath) && ($upload['size'] ?? 0) <= $maxBytes
-                ? $finfo->file($tmpPath)
-                : false;
             $allowedMime = ['image/jpeg', 'image/png', 'image/webp'];
-            $size = $mime !== false ? @getimagesize($tmpPath) : false;
+            foreach ($uploads['error'] as $i => $err) {
+                if ($err !== UPLOAD_ERR_OK) continue;
+                $tmpPath = (string) ($uploads['tmp_name'][$i] ?? '');
+                if (!is_uploaded_file($tmpPath)) continue;
+                $size = ($uploads['size'][$i] ?? 0) <= $maxBytes ? @getimagesize($tmpPath) : false;
+                if ($size === false) continue;
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $mime = $finfo->file($tmpPath);
+                if (!in_array($mime, $allowedMime, true) || $size[0] < 1 || $size[1] < 1) continue;
 
-            if ($size !== false && in_array($mime, $allowedMime, true) && $size[0] > 0 && $size[1] > 0) {
                 $imgName = bin2hex(random_bytes(16)) . '.jpg';
                 $smallDir = NEWS_DIR . '/small';
                 $mediumDir = NEWS_DIR . '/medium';
                 @mkdir($smallDir, 0755, true);
                 @mkdir($mediumDir, 0755, true);
 
+                $srcImg = @imagecreatefromstring((string) file_get_contents($tmpPath));
+                if ($srcImg === false) continue;
                 $srcW = $size[0];
                 $srcH = $size[1];
-                $srcImg = @imagecreatefromstring((string) file_get_contents($tmpPath));
-                if ($srcImg !== false) {
-                    $mediumW = min($srcW, 1600);
-                    $mediumH = max(1, (int) round($srcH * ($mediumW / $srcW)));
-                    $mediumImg = imagecreatetruecolor($mediumW, $mediumH);
-                    imagecopyresampled($mediumImg, $srcImg, 0, 0, 0, 0, $mediumW, $mediumH, $srcW, $srcH);
-                    imagejpeg($mediumImg, "$mediumDir/$imgName", 85);
+                $mediumW = min($srcW, 1600);
+                $mediumH = max(1, (int) round($srcH * ($mediumW / $srcW)));
+                $mediumImg = imagecreatetruecolor($mediumW, $mediumH);
+                imagecopyresampled($mediumImg, $srcImg, 0, 0, 0, 0, $mediumW, $mediumH, $srcW, $srcH);
+                imagejpeg($mediumImg, "$mediumDir/$imgName", 85);
 
-                    $thumbW = min(450, $mediumW);
-                    $thumbH = max(1, (int) round($mediumH * ($thumbW / $mediumW)));
-                    $thumbImg = imagecreatetruecolor($thumbW, $thumbH);
-                    imagecopyresampled($thumbImg, $mediumImg, 0, 0, 0, 0, $thumbW, $thumbH, $mediumW, $mediumH);
-                    imagejpeg($thumbImg, "$smallDir/$imgName", 80);
+                $thumbW = min(450, $mediumW);
+                $thumbH = max(1, (int) round($mediumH * ($thumbW / $mediumW)));
+                $thumbImg = imagecreatetruecolor($thumbW, $thumbH);
+                imagecopyresampled($thumbImg, $mediumImg, 0, 0, 0, 0, $thumbW, $thumbH, $mediumW, $mediumH);
+                imagejpeg($thumbImg, "$smallDir/$imgName", 80);
 
-                    imagedestroy($srcImg);
-                    imagedestroy($mediumImg);
-                    imagedestroy($thumbImg);
-                    $newImage = true;
-                    $newsItem['thumb'] = "userfls/news/small/$imgName";
-                    $newsDetail['gallery'][] = [
-                        'full' => "userfls/news/medium/$imgName",
-                        'thumb' => "userfls/news/small/$imgName",
-                    ];
+                imagedestroy($srcImg);
+                imagedestroy($mediumImg);
+                imagedestroy($thumbImg);
+
+                $entry = [
+                    'full' => "userfls/news/medium/$imgName",
+                    'thumb' => "userfls/news/small/$imgName",
+                ];
+                $processedImages[] = $entry;
+                if (empty($newsItem['thumb'])) {
+                    $newsItem['thumb'] = $entry['thumb'];
                 }
             }
         }
 
+        $newsDetail['gallery'] = $processedImages;
         if ($editSlug && isset($newsDetails[$editSlug])) {
             $old = $newsDetails[$editSlug];
-            $oldGallery = $old['gallery'] ?? [];
-            if ($newImage) {
-                if ($oldGallery !== []) {
-                    $oldGallery[0] = $newsDetail['gallery'][0];
-                } else {
-                    $oldGallery[] = $newsDetail['gallery'][0];
-                }
-            }
-            $newsDetail['gallery'] = $oldGallery;
+            $newsDetail['gallery'] = array_merge($old['gallery'] ?? [], $processedImages);
 
             foreach ($newsItems as &$item) {
                 if ($item['slug'] === $editSlug) {
@@ -255,6 +252,13 @@ img.preview{max-width:100px;border-radius:4px;margin-top:4px}
 <link href="vendor/quill/quill.snow.css" rel="stylesheet">
 <script src="vendor/quill/quill.min.js"></script>
 <script>
+function insertImage(src){
+  var editor = document.querySelector('#editor')?._quill;
+  if (!editor) return;
+  var range = editor.getSelection(true);
+  editor.insertEmbed(range.index, 'image', src);
+  editor.setSelection(range.index + 1);
+}
 document.addEventListener('DOMContentLoaded',function(){
   var container = document.querySelector('#editor');
   if (!container) return;
@@ -265,6 +269,7 @@ document.addEventListener('DOMContentLoaded',function(){
     },
     placeholder:'Напишите текст новости...'
   });
+  container._quill = editor;
   var textarea = document.querySelector('textarea[name="body"]');
   editor.root.innerHTML = textarea.value;
   var form = container.closest('form');
@@ -344,12 +349,18 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 
-<label>Изображение</label>
-<input type="file" name="image" accept="image/jpeg,image/png,image/webp">
+<label>Изображения</label>
+<input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple>
+<small style="display:block;color:#888;margin-top:2px">Можно выбрать несколько. После сохранения появятся ниже — нажмите «Вставить» чтобы добавить в текст.</small>
 <?php if ($editItem && !empty($newsDetails[$editItem['slug']]['gallery'])): ?>
-<br>
-<img class="preview" src="../<?= htmlspecialchars($newsDetails[$editItem['slug']]['gallery'][0]['thumb']) ?>" alt="">
-<small>текущее изображение</small>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+<?php foreach ($newsDetails[$editItem['slug']]['gallery'] as $gi): ?>
+<div style="border:1px solid #eee;border-radius:8px;padding:6px;text-align:center">
+<img style="max-width:120px;display:block;border-radius:4px" src="../<?= htmlspecialchars($gi['thumb']) ?>">
+<button type="button" class="btn btn-outline" style="font-size:.75rem;padding:3px 8px;margin-top:4px" onclick="insertImage('../<?= htmlspecialchars($gi['full']) ?>')">Вставить</button>
+</div>
+<?php endforeach; ?>
+</div>
 <?php endif; ?>
 
 <div style="margin-top:16px;display:flex;gap:8px">

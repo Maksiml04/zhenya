@@ -252,8 +252,8 @@ textarea{min-height:200px;resize:vertical}
 small{color:#888}
 img.preview{max-width:100px;border-radius:4px;margin-top:4px}
 </style>
-<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<link href="vendor/quill/quill.snow.css" rel="stylesheet">
+<script src="vendor/quill/quill.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
   var container = document.querySelector('#editor');
@@ -335,7 +335,14 @@ document.addEventListener('DOMContentLoaded',function(){
 
 <label>Текст новости</label>
 <div id="editor" style="min-height:250px;margin-bottom:12px"></div>
-<textarea name="body" style="display:none"><?= htmlspecialchars($bodyValue) ?></textarea>
+<textarea name="body" id="body-fallback" style="display:none;min-height:250px"><?= htmlspecialchars($bodyValue) ?></textarea>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  if (typeof Quill === 'undefined') {
+    document.getElementById('body-fallback').style.display='block';
+  }
+});
+</script>
 
 <label>Изображение</label>
 <input type="file" name="image" accept="image/jpeg,image/png,image/webp">

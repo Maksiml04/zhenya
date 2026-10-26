@@ -210,6 +210,8 @@ li { margin-bottom: .3em; line-height: 1.6; }
 .card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); background: var(--bg); }
 .card__media { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--bg-muted); }
 .card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease); }
+.card__media--coach { aspect-ratio: 3 / 4; }
+.card__media--coach img { object-position: top center; }
 .card:hover .card__media img { transform: scale(1.05); }
 .card__body { padding: 22px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
 .card__title { font-size: 1.15rem; font-weight: 700; letter-spacing: -.02em; }

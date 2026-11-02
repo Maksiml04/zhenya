@@ -276,7 +276,15 @@ document.addEventListener('DOMContentLoaded',function(){
   var editor = new Quill('#editor', {
     theme:'snow',
     modules:{
-      toolbar:[['bold','italic','underline'],[{list:'bullet'},{list:'ordered'}],['link','clean']]
+      toolbar:[
+        [{header:[1,2,3,false]}],
+        [{font:['','serif','monospace']},{size:['small',false,'large','huge']}],
+        ['bold','italic','underline','strike'],
+        [{color:[]},{background:[]}],
+        [{list:'bullet'},{list:'ordered'},{indent:'-1'},{indent:'+1'}],
+        [{align:[]}],
+        ['link','clean']
+      ]
     },
     placeholder:'Напишите текст новости...'
   });

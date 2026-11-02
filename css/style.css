@@ -327,6 +327,15 @@ li { margin-bottom: .3em; line-height: 1.6; }
 .prose h2, .prose h3 { color: var(--text); margin-top: 1.4em; }
 .prose li::marker { color: var(--accent); }
 .prose img { border-radius: var(--radius-sm); margin: 16px 0; }
+.prose .ql-font-serif { font-family: Georgia, 'Times New Roman', serif; }
+.prose .ql-font-monospace { font-family: 'Courier New', Consolas, monospace; }
+.prose .ql-size-small { font-size: .75em; }
+.prose .ql-size-large { font-size: 1.3em; }
+.prose .ql-size-huge { font-size: 1.8em; }
+.prose .ql-align-center { text-align: center; }
+.prose .ql-align-right { text-align: right; }
+.prose .ql-align-justify { text-align: justify; }
+.prose s, .prose strike { text-decoration: line-through; }
 .layout-2 { display: grid; grid-template-columns: 1fr 340px; gap: 48px; align-items: start; }
 .aside-sticky { position: sticky; top: 96px; }
 

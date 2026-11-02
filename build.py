@@ -560,7 +560,7 @@ def detail_body(base, title, body_html, gallery):
                 f'<img src="{base}{g0["full"]}" alt="{eattr(title)}" loading="lazy"></figure>')
         rest = rest[1:]
     gal = gallery_html(base, rest, title)
-    return lead + body + gal
+    return lead + gal + body
 
 
 def detail_page(base, title, trail, body_html, gallery, uid):

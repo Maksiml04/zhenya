@@ -168,7 +168,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $authed) {
         $newsDetail['gallery'] = $processedImages;
         if ($editSlug && isset($newsDetails[$editSlug])) {
             $old = $newsDetails[$editSlug];
-            $newsDetail['gallery'] = array_merge($old['gallery'] ?? [], $processedImages);
+            $deleteImages = (array) ($_POST['delete_images'] ?? []);
+            $oldGallery = array_values(array_filter($old['gallery'] ?? [], fn($g) => !in_array($g['full'], $deleteImages, true)));
+            $newsDetail['gallery'] = array_merge($oldGallery, $processedImages);
+            if (empty($newsItem['thumb']) && !empty($oldGallery)) {
+                $newsItem['thumb'] = $oldGallery[0]['thumb'];
+            }
 
             foreach ($newsItems as &$item) {
                 if ($item['slug'] === $editSlug) {
@@ -248,6 +253,12 @@ textarea{min-height:200px;resize:vertical}
 .msg-del{background:#fee2e2;color:#991b1b}
 small{color:#888}
 img.preview{max-width:100px;border-radius:4px;margin-top:4px}
+.gallery-item{position:relative;display:inline-block;border:1px solid #eee;border-radius:8px;padding:6px;text-align:center}
+.gallery-item .del{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:#dc2626;color:#fff;border:none;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:1}
+.gallery-item .del:hover{background:#991b1b}
+.gallery-item .del.done{background:#9ca3af;text-decoration:line-through}
+.gallery-item .del.done:hover{background:#6b7280}
+.gallery-item.dimmed{opacity:.4;filter:grayscale(1)}
 </style>
 <link href="vendor/quill/quill.snow.css" rel="stylesheet">
 <script src="vendor/quill/quill.min.js"></script>
@@ -351,16 +362,40 @@ document.addEventListener('DOMContentLoaded',function(){
 
 <label>Изображения</label>
 <input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple>
-<small style="display:block;color:#888;margin-top:2px">Можно выбрать несколько. После сохранения появятся ниже — нажмите «Вставить» чтобы добавить в текст.</small>
+<small style="display:block;color:#888;margin-top:2px">Можно выбрать несколько файлов. Новые фото добавятся к существующим. Чтобы удалить фото, нажмите «×» на нём перед сохранением.</small>
 <?php if ($editItem && !empty($newsDetails[$editItem['slug']]['gallery'])): ?>
 <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
 <?php foreach ($newsDetails[$editItem['slug']]['gallery'] as $gi): ?>
-<div style="border:1px solid #eee;border-radius:8px;padding:6px;text-align:center">
+<div class="gallery-item" data-full="<?= htmlspecialchars($gi['full']) ?>">
+<button type="button" class="del" title="Удалить фото">×</button>
+<input type="hidden" name="delete_images[]" value="" disabled>
 <img style="max-width:120px;display:block;border-radius:4px" src="../<?= htmlspecialchars($gi['thumb']) ?>">
 <button type="button" class="btn btn-outline" style="font-size:.75rem;padding:3px 8px;margin-top:4px" onclick="insertImage('../<?= htmlspecialchars($gi['full']) ?>')">Вставить</button>
 </div>
 <?php endforeach; ?>
 </div>
+<script>
+document.querySelectorAll('.gallery-item .del').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var item = btn.closest('.gallery-item');
+    var hidden = item.querySelector('input[type="hidden"]');
+    var isDeleted = item.classList.contains('dimmed');
+    if (isDeleted) {
+      item.classList.remove('dimmed');
+      btn.classList.remove('done');
+      btn.textContent = '×';
+      hidden.disabled = true;
+      hidden.value = '';
+    } else {
+      item.classList.add('dimmed');
+      btn.classList.add('done');
+      btn.textContent = '✓';
+      hidden.disabled = false;
+      hidden.value = item.dataset.full;
+    }
+  });
+});
+</script>
 <?php endif; ?>
 
 <div style="margin-top:16px;display:flex;gap:8px">
